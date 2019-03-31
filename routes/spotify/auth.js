@@ -1,5 +1,3 @@
-const axios = require('axios');
-
 var express = require('express');
 var router = express.Router();
 var ROOT_URL = 'http://localhost:3000';
