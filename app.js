@@ -1,6 +1,3 @@
-require('dotenv').config();
-// console.log(process.env.SPOTIFY_CLIENT_ID);
-
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');

@@ -1,18 +1,18 @@
 var express = require('express');
 var router = express.Router();
-var ROOT_URL = 'http://localhost:3000';
 var querystring = require('querystring');
+var request = require('request'); // "Request" library
 
 // router.use(require('cors'));
 
-
-
-var request = require('request'); // "Request" library
+const REACT_URI = process.env.REACT_URI;
 
 var client_id = process.env.SPOTIFY_CLIENT_ID; // Your client id
 var client_secret = process.env.SPOTIFY_CLIENT_SECRET; // Your secret
-var redirect_uri = 'http://localhost:3000/spotify/auth/callback'; // Your redirect uri
+var redirect_uri = process.env.SPOTIFY_REDIRECT_URI; // Your redirect uri
 
+// console.log(process.env.SPOTIFY_REDIRECT_URI);
+// console.log(REACT_URI);
 /**
  * Generates a random string containing numbers and letters
  * @param  {number} length The length of the string
@@ -37,7 +37,7 @@ router.get('/login', function (req, res) {
   res.cookie(stateKey, state);
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email user-read-currently-playing';
+  var scope = 'user-read-private user-read-email user-read-currently-playing playlist-read-private';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -120,8 +120,9 @@ router.get('/callback', function (req, res) {
         // send user json back
         // res.status(200).send();
 
-        // we can also pass the token to the browser to make requests from there
-        res.redirect('/#' +
+        // we can also pass the token to the browser to make requests from there'
+        // redirect to react-app ${REACT_URI}
+        res.redirect(`${REACT_URI}/home/#` +
           querystring.stringify({
             access_token: access_token,
             refresh_token: refresh_token
