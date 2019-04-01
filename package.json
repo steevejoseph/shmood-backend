@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": " env-cmd .env.dev node ./bin/www",
-    "start": "env-cmd .env.blah node ./bin/www"
+    "dev": "env-cmd .env.dev node ./bin/www",
+    "start": "env-cmd .env.prod node ./bin/www"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
