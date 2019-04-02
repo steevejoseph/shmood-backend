@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
+const urljoin = require('url-join');
 const request = require('request'); // "Request" library
 const spotifyWebApi = require('spotify-web-api-node');
+
 
 // router.use(require('cors'));
 const REACT_URI = process.env.REACT_URI;
@@ -21,12 +23,12 @@ const scopes = [
   'user-read-playback-state',
 ]
 
-console.log(credentials);
+// console.log(credentials);
 const spotify = new spotifyWebApi(credentials);
 
 router.get('/login', function (req, res) {
   const authorizeURL = spotify.createAuthorizeURL(scopes);
-  console.log(authorizeURL);
+  // console.log(authorizeURL);
   res.redirect(authorizeURL);
 });
 
@@ -41,11 +43,11 @@ router.get('/callback', function(req, res) {
   spotify
     .authorizationCodeGrant(code)
     .then(data => {
-      console.log(data.body)
+      // console.log(data.body)
       const { expires_in, access_token, refresh_token } = data.body;
-      console.log(`The token expires in ${expires_in}`);
-      console.log(`The access token is  ${access_token}`);
-      console.log(`The refresh token is ${refresh_token}`);
+      // console.log(`The token expires in ${expires_in}`);
+      // console.log(`The access token is  ${access_token}`);
+      // console.log(`The refresh token is ${refresh_token}`);
 
       /* Ok. We've got the access token!
          Save the access token for this user somewhere so that you can use it again.
@@ -54,8 +56,13 @@ router.get('/callback', function(req, res) {
       // send token back?
       // res.status(200).send(data.body);
       
-      /* Redirecting back to the main page! :-) */
-      res.redirect(`${REACT_URI}/home/#` +
+      console.log(req.headers.referer);
+
+      // <srcUrl.com>/home/#
+      const srcUrl = urljoin(req.headers.referer, 'home', '#');
+
+      /* Redirecting back from whence we came! :-) */
+      res.redirect(`${srcUrl}` +
       querystring.stringify({
         access_token: access_token,
         refresh_token: refresh_token
