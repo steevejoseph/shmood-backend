@@ -75,6 +75,7 @@ router.get('/callback', function(req, res) {
       }));    
     }) 
     .catch((err) => {
+      console.log(err);
       res.status(err.code);
       res.send(err.message);
     });
