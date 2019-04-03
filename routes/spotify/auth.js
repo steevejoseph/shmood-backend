@@ -65,7 +65,8 @@ router.get('/callback', function(req, res) {
       const withHttp = url => !/^https?:\/\//i.test(url) ? `http://${url}` : url;
 
       // format with protocol to return to http://<srcUrl>/home/#
-      srcUrl = withHttp(srcUrl).urljoin(srcUrl, 'home', '#');
+      srcUrl = withHttp(srcUrl);
+      srcUrl = urljoin(srcUrl, 'home', '#');
 
       /* Redirecting back from whence we came! :-) */
       res.redirect(`${srcUrl}` +
