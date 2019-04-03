@@ -5,7 +5,6 @@ const urljoin = require('url-join');
 const request = require('request'); // "Request" library
 const spotifyWebApi = require('spotify-web-api-node');
 
-
 // router.use(require('cors'));
 const REACT_URI = process.env.REACT_URI;
 
@@ -23,12 +22,17 @@ const scopes = [
   'user-read-playback-state',
 ]
 
+let srcUrl;
+
 // console.log(credentials);
 const spotify = new spotifyWebApi(credentials);
 
 router.get('/login', function (req, res) {
+
+  // keep track of the url that called us so we can redirect back later
+  srcUrl = req.query.srcUrl;
+
   const authorizeURL = spotify.createAuthorizeURL(scopes);
-  // console.log(authorizeURL);
   res.redirect(authorizeURL);
 });
 
@@ -53,13 +57,15 @@ router.get('/callback', function(req, res) {
          Save the access token for this user somewhere so that you can use it again.
          Cookie? Local storage?
       */
-      // send token back?
+      // send token back? guess not
       // res.status(200).send(data.body);
       
-      console.log(req.headers.referer);
+      // nifty little lambda that adds protocol if protocol not given.
+      // https://stackoverflow.com/a/53206485
+      const withHttp = url => !/^https?:\/\//i.test(url) ? `http://${url}` : url;
 
-      // <srcUrl.com>/home/#
-      const srcUrl = urljoin(req.headers.referer, 'home', '#');
+      // format with protocol to return to http://<srcUrl>/home/#
+      srcUrl = withHttp(srcUrl).urljoin(srcUrl, 'home', '#');
 
       /* Redirecting back from whence we came! :-) */
       res.redirect(`${srcUrl}` +
