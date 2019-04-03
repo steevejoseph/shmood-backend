@@ -15,7 +15,7 @@ const params = {
       'emotion,hair,makeup,occlusion,accessories,blur,exposure,noise'
 };
 
-router.get('/analyze', (req, res, next) => {
+router.post('/analyze', (req, res, next) => {
   let imageUrl = req.body.imageUrl;
 
   const options = {
