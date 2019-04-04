@@ -96,4 +96,11 @@ router.get('/refresh_token', function (req, res) {
     })
 });
 
+router.get('/get-credentials', function(req, res) {
+
+  // TODO: should update to check if this request is being made from a
+  //  trusted source (ex: heroku)
+  res.json(credentials);
+});
+
 module.exports = router;
