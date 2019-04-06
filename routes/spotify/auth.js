@@ -62,10 +62,11 @@ router.get('/callback', function(req, res) {
       
       // nifty little lambda that adds protocol if protocol not given.
       // https://stackoverflow.com/a/53206485
-      const withHttp = url => !/^https?:\/\//i.test(url) ? `http://${url}` : url;
+      // modified to accept shmood:// scheme :))
+      const withProtocol = url => !/^shmood|https?:\/\//i.test(url) ? `http://${url}` : url;
 
       // format with protocol to return to http://<srcUrl>/home/#
-      srcUrl = withHttp(srcUrl);
+      srcUrl = withProtocol(srcUrl);
       srcUrl = urljoin(srcUrl, 'home', '#');
 
       /* Redirecting back from whence we came! :-) */
