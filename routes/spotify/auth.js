@@ -62,15 +62,19 @@ router.get('/callback', function(req, res) {
       
       // nifty little lambda that adds protocol if protocol not given.
       // https://stackoverflow.com/a/53206485
-      // modified to accept shmood:// scheme :))
-      const withProtocol = url => !/^shmood|https?:\/\//i.test(url) ? `http://${url}` : url;
+      // modified to accept intent:// scheme (android) shmood:// scheme (ios)
+      const withProtocol = url => !/^intent|shmood|https?:\/\//i.test(url) ? `http://${url}` : url;
 
       // format with protocol to return to http://<srcUrl>/home/#
       srcUrl = withProtocol(srcUrl);
 
       // handle mobile redirect.
-      if(srcUrl.startsWith('shmood://')) {
-        srcUrl = "intent://shmood/home/#Intent;scheme=shmood;package=com.shmood;end";
+      if(srcUrl.startsWith('intent://')) {
+        srcUrl += `S.access_token=${access_token};S.refresh_token=${refresh_token};S.expires_in=${expires_in};end;`
+        res.redirect(srcUrl);
+      }else if(srcUrl.startsWith('shmood://')){
+        // will do ios redirect later...
+        console.log('ios redirect not implemented!');
       }else{
         srcUrl = urljoin(srcUrl, 'home', '#');
       }
