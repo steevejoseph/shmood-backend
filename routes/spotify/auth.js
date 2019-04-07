@@ -70,11 +70,19 @@ router.get('/callback', function(req, res) {
 
       // handle mobile redirect.
       if(srcUrl.startsWith('intent://')) {
-        srcUrl = `intent://home/#Intent;scheme=shmood;package=com.shmood;`
-        srcUrl += `S.access_token=${encodeURIComponent(access_token)};`
-        srcUrl += `S.refresh_token=${encodeURIComponent(refresh_token)};`;
-        srcUrl += `S.expires_in=${encodeURIComponent(expires_in)};`
-        srcUrl += `end`;
+        // srcUrl = `intent://home/#Intent;scheme=shmood;package=com.shmood;`
+        // srcUrl += `S.access_token=${encodeURIComponent(access_token)};`
+        // srcUrl += `S.refresh_token=${encodeURIComponent(refresh_token)};`;
+        // srcUrl += `S.expires_in=${encodeURIComponent(expires_in)};`
+        // srcUrl += `end`;
+
+        srcUrl='http://shmood-mobile.com';
+        srcUrl += querystring.stringify({
+          access_token: access_token,
+          refresh_token: refresh_token,
+          expires_in: expires_in,
+        });
+
         console.log(srcUrl);
         return res.redirect(srcUrl);
       }else if(srcUrl.startsWith('shmood://')){
