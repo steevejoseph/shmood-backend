@@ -76,7 +76,7 @@ router.get('/callback', function(req, res) {
         // srcUrl += `S.expires_in=${encodeURIComponent(expires_in)};`
         // srcUrl += `end`;
 
-        srcUrl='http://shmood-mobile.com';
+        srcUrl='http://shmood-mobile.com?';
         srcUrl += querystring.stringify({
           access_token: access_token,
           refresh_token: refresh_token,
