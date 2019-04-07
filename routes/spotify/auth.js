@@ -70,8 +70,11 @@ router.get('/callback', function(req, res) {
 
       // handle mobile redirect.
       if(srcUrl.startsWith('intent://')) {
-        srcUrl += `S.access_token=${access_token};S.refresh_token=${refresh_token};S.expires_in=${expires_in};end`
-        res.redirect(srcUrl);
+        srcUrl += `S.access_token=${encodeURIComponent(access_token)};`
+        srcUrl += `S.refresh_token=${encodeURIComponent(refresh_token)};`;
+        srcUrl += `S.expires_in=${encodeURIComponent(expires_in)};end`;
+        console.log(srcUrl);
+        return res.redirect(srcUrl);
       }else if(srcUrl.startsWith('shmood://')){
         // will do ios redirect later...
         console.log('ios redirect not implemented!');
