@@ -67,13 +67,20 @@ router.get('/callback', function(req, res) {
 
       // format with protocol to return to http://<srcUrl>/home/#
       srcUrl = withProtocol(srcUrl);
-      srcUrl = urljoin(srcUrl, 'home', '#');
+
+      // handle mobile redirect.
+      if(srcUrl.startsWith('shmood://')) {
+        srcUrl = "intent://shmood/home/#Intent;scheme=shmood;package=com.shmood;end";
+      }else{
+        srcUrl = urljoin(srcUrl, 'home', '#');
+      }
 
       /* Redirecting back from whence we came! :-) */
       res.redirect(`${srcUrl}` +
       querystring.stringify({
         access_token: access_token,
-        refresh_token: refresh_token
+        refresh_token: refresh_token,
+        expires_in: expires_in,
       }));    
     }) 
     .catch((err) => {
