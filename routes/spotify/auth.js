@@ -68,7 +68,7 @@ router.get('/callback', function(req, res) {
       // format with protocol to return to http://<srcUrl>/home/#
       srcUrl = withProtocol(srcUrl);
 
-      // handle mobile redirect.
+      // handle mobile redirect. mobile is absolutely broken af rn.
       if(srcUrl.startsWith('intent://')) {
         // srcUrl = `intent://home/#Intent;scheme=shmood;package=com.shmood;`
         // srcUrl += `S.access_token=${encodeURIComponent(access_token)};`
@@ -76,7 +76,7 @@ router.get('/callback', function(req, res) {
         // srcUrl += `S.expires_in=${encodeURIComponent(expires_in)};`
         // srcUrl += `end`;
 
-        srcUrl=`http://shmood-mobile.com/${access_token}/${refresh_token}/${expires_in}`;
+        srcUrl=`http://shmood-mobile.com/${encodeURIComponent(access_token)}/${encodeURIComponent(refresh_token)}/${encodeURIComponent(expires_in)}`;
 
         console.log(srcUrl);
         return res.redirect(srcUrl);
