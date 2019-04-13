@@ -15,11 +15,23 @@ const credentials = {
 }
 
 const scopes = [
-  'user-read-private',
-  'user-read-email',
-  'user-read-currently-playing',
+  'playlist-modify-public',
+  'playlist-modify-private',
+
   'playlist-read-private',
+  'playlist-read-collaborative',
+
+  'user-modify-playback-state',
+
+  'user-library-modify',
+  'user-library-read',
+
+  'user-read-currently-playing',
+  'user-read-email',
   'user-read-playback-state',
+  'user-read-private',
+  'user-read-recently-played',
+  'user-top-read',
 ]
 
 let srcUrl;
@@ -102,17 +114,26 @@ router.get('/callback', function(req, res) {
     });
 });
 
-router.get('/refresh_token', function (req, res) {
+router.post('/refresh_token', function (req, res) {
+
+  const {accessToken, refreshToken } = req.body;
+  console.log(req.body)
+  spotify.setAccessToken(accessToken);
+  spotify.setRefreshToken(refreshToken);
+
   spotify
     .refreshAccessToken()
     .then(data => {
       console.log('token has been refreshed!');
+      console.log(data.body);
       spotify.setAccessToken(data.body['access_token']);
 
       // send new token back?
+      res.send(data.body);
     })
     .catch(err => {
       console.log('Could not refresh access token',err);
+      res.status(400).send(err);
     })
 });
 
