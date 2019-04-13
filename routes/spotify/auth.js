@@ -32,6 +32,8 @@ const scopes = [
   'user-read-private',
   'user-read-recently-played',
   'user-top-read',
+  
+  'ugc-image-upload'
 ]
 
 let srcUrl;
