@@ -4,6 +4,7 @@ const querystring = require('querystring');
 const urljoin = require('url-join');
 const request = require('request');
 const _ = require('lodash');
+const i2b = require('base64-img');
 
 const AZURE_KEY = process.env.AZURE_KEY;
 const uriBase = 'https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect';
@@ -43,11 +44,18 @@ router.post('/submit', (req, res, next) => {
     if(emotion.error){
       res.status(400).send(emotion);
     }else{
-      res.send(emotion);
+
+      // gonna return the emotion, degree, and the base64 binary of the submitted image.
+      i2b.requestBase64(imageUrl, function(err, result, body){
+        // body is the actual bin.
+        // console.log('B', body);
+        emotion['imageBinary'] = body;
+        // console.log('tf', emotion);
+        res.send(emotion);
+      });
     }
   });
 });
-
 
 const analyze = (facesArray) => {
 
