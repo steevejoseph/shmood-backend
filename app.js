@@ -6,16 +6,9 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
-const mongoose = require('mongoose');
-const passport = require('passport');
 
 const app = express();
 app.use(cors());
-
-
-// db connection
-mongoose.connect(process.env.DB_URL, {useNewUrlParser: true});
-
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -26,11 +19,6 @@ const azureRouter = require('./routes/azure/index');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
-
-app.use(passport.initialize());
-app.use(passport.session());
-
 
 app.use(logger('dev'));
 app.use(express.json());
