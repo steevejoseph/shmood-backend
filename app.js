@@ -7,22 +7,17 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const passport = require('passport');
 
 const app = express();
 app.use(cors());
-
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-const spotifyAuthRouter = require('./routes/spotify/auth');
-const azureRouter = require('./routes/azure/index');
-const imgurRouter = require('./routes/imgur/index');
-// const instagramAuthRouter = require('./routes/instagram/auth');
+app.use(passport.initialize());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-mongoose.connect(process.env.DB_URL, {useNewUrlParser: true});
+mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -31,20 +26,23 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/spotify/auth', spotifyAuthRouter);
-app.use('/azure', azureRouter);
-app.use('/imgur', imgurRouter);
-// app.use('/instagram/auth', instagramAuthRouter);
+app.use('/', require('./routes/index'));
+app.use('/users', require('./routes/users'));
+app.use('/spotify/auth', require('./routes/spotify/auth'));
+app.use('/azure', require('./routes/azure/index'));
+app.use('/imgur', require('./routes/imgur/index'));
+
+// temp
+app.use('/auth/spotify/', require('./routes/passport/spotify'));
+// app.use('/instagram/auth', require('./routes/instagram/auth'));
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

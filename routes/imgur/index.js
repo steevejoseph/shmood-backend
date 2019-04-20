@@ -1,17 +1,19 @@
 const express = require('express');
+
 const router = express.Router();
 const fs = require('fs');
 const multer = require('multer');
 
 // imgur set up
 const imgur = require('imgur');
+
 imgur.setClientId(process.env.IMGUR_CLIENT_ID);
 imgur.setAPIUrl('https://api.imgur.com/3/');
 
 
 // set up dir
 const imgdir = './uploads';
-if(!fs.existsSync(imgdir)){
+if (!fs.existsSync(imgdir)) {
   fs.mkdirSync(imgdir);
 }
 
@@ -22,55 +24,49 @@ const storage = multer.diskStorage({
   },
 
   filename: (req, file, cb) => {
-    cb(null, file.fieldname + '-' + Date.now());
-  }
+    cb(null, `${file.fieldname}-${Date.now()}`);
+  },
 });
-const upload =  multer({storage: storage});
+const upload = multer({ storage });
 
 // routes
-router.post('/upload', upload.single('photo'), (req, res, next) =>{
-
-  console.log('hit upload route');
-
+router.post('/upload', upload.single('photo'), (req, res) => {
   const file = req.file.path;
   imgur
     .uploadFile(file)
-    .then(json => {
-      const {deletehash, link} = json.data;
-      console.log(json);
+    .then((json) => {
+      const { deletehash, link } = json.data;
       res.json({
         deletehash,
-        link
+        link,
       });
     })
-    .catch(err =>{
+    .catch((err) => {
       console.log('Cannot add photo', err);
       res.status(500).json({
         message: 'Could not add photo',
-        err: err
-      })
-    })
-
+        err,
+      });
+    });
 });
 
 // route for deleting an image
-router.post('/delete', (req, res, next) => {
-  const deletehash = req.body.deletehash;
+router.post('/delete', (req, res) => {
+  const { deletehash } = req.body;
 
   imgur
     .deleteImage(deletehash)
-    .then(status => {
+    .then((status) => {
       console.log('Successfully deleted image', status);
       res.json(status);
     })
-    .catch(err => {
+    .catch((err) => {
       console.log('Error deleting image', err);
       res.status(500).json({
         message: 'Could not delete image.',
-        err: err
+        err,
       });
     });
-
 });
 
 module.exports = router;
