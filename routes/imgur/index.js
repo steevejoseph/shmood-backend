@@ -53,4 +53,24 @@ router.post('/upload', upload.single('photo'), (req, res, next) =>{
 
 });
 
+// route for deleting an image
+router.post('/delete', (req, res, next) => {
+  const deletehash = req.body.deletehash;
+
+  imgur
+    .deleteImage(deletehash)
+    .then(status => {
+      console.log('Successfully deleted image', status);
+      res.json(status);
+    })
+    .catch(err => {
+      console.log('Error deleting image', err);
+      res.status(500).json({
+        message: 'Could not delete image.',
+        err: err
+      });
+    });
+
+});
+
 module.exports = router;
