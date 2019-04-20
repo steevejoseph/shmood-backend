@@ -4,10 +4,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, default: '' },
   email: { type: String, default: '' },
   spotifyId: { type: String, default: '' },
-  location: {
-    lat: { type: String, default: '' },
-    lng: { type: String, default: '' },
-  },
+  location: {},
   loggedIn: { type: Boolean, default: false },
   lastLogin: { type: Date, default: null },
 
