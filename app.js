@@ -6,6 +6,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
+const mongoose = require('mongoose');
 
 const app = express();
 app.use(cors());
@@ -20,6 +21,8 @@ const imgurRouter = require('./routes/imgur/index');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+mongoose.connect(process.env.DB_URL, {useNewUrlParser: true});
 
 app.use(logger('dev'));
 app.use(express.json());
