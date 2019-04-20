@@ -14,6 +14,7 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const spotifyAuthRouter = require('./routes/spotify/auth');
 const azureRouter = require('./routes/azure/index');
+const imgurRouter = require('./routes/imgur/index');
 // const instagramAuthRouter = require('./routes/instagram/auth');
 
 // view engine setup
@@ -31,6 +32,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/spotify/auth', spotifyAuthRouter);
 app.use('/azure', azureRouter);
+app.use('/imgur', imgurRouter);
 // app.use('/instagram/auth', instagramAuthRouter);
 
 // catch 404 and forward to error handler
