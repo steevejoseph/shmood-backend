@@ -7,11 +7,9 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const passport = require('passport');
 
 const app = express();
 app.use(cors());
-app.use(passport.initialize());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -25,16 +23,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/spotify/auth', require('./routes/spotify/auth'));
 app.use('/azure', require('./routes/azure/index'));
 app.use('/imgur', require('./routes/imgur/index'));
-
-// temp
-app.use('/auth/spotify/', require('./routes/passport/spotify'));
-// app.use('/instagram/auth', require('./routes/instagram/auth'));
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

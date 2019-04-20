@@ -1,18 +1,16 @@
 const express = require('express');
+
 const router = express.Router();
 const querystring = require('querystring');
 const urljoin = require('url-join');
-const request = require('request'); // "Request" library
-const spotifyWebApi = require('spotify-web-api-node');
-
-// router.use(require('cors'));
-const REACT_URI = process.env.REACT_URI;
+const SpotifyWebApi = require('spotify-web-api-node');
+const userMiddleware = require('../../middleware/user');
 
 const credentials = {
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
   redirectUri: process.env.SPOTIFY_REDIRECT_URI,
-}
+};
 
 const scopes = [
   'playlist-modify-public',
@@ -32,18 +30,15 @@ const scopes = [
   'user-read-private',
   'user-read-recently-played',
   'user-top-read',
-  
-  'ugc-image-upload'
-]
+
+  'ugc-image-upload',
+];
 
 let srcUrl;
+const spotify = new SpotifyWebApi(credentials);
 
-// console.log(credentials);
-const spotify = new spotifyWebApi(credentials);
-
-router.get('/login', function (req, res) {
-
-  // keep track of the url that called us so we can redirect back later
+router.get('/login', (req, res) => {
+  // eslint-disable-next-line prefer-destructuring
   srcUrl = req.query.srcUrl;
 
   const authorizeURL = spotify.createAuthorizeURL(scopes);
@@ -51,64 +46,47 @@ router.get('/login', function (req, res) {
 });
 
 /* Handle authorization callback from Spotify */
-router.get('/callback', function(req, res) {
-
-  /* Read query parameters */
-  var code  = req.query.code; // Read the authorization code from the query parameters
-  var state = req.query.state; // (Optional) Read the state from the query parameter
+router.get('/callback', (req, res) => {
+  const { code } = req.query;
+  // const { state } = req.query;
 
   /* Get the access token! */
   spotify
     .authorizationCodeGrant(code)
-    .then(data => {
-      // console.log(data.body)
+    .then((data) => {
       const { expires_in, access_token, refresh_token } = data.body;
-      // console.log(`The token expires in ${expires_in}`);
-      // console.log(`The access token is  ${access_token}`);
-      // console.log(`The refresh token is ${refresh_token}`);
 
-      /* Ok. We've got the access token!
-         Save the access token for this user somewhere so that you can use it again.
-         Cookie? Local storage?
-      */
-      // send token back? guess not
-      // res.status(200).send(data.body);
-      
+      spotify.setAccessToken(access_token);
+      spotify
+        .getMe()
+        .then((me) => {
+          userMiddleware.addUserToDb(me);
+        });
+
+
       // nifty little lambda that adds protocol if protocol not given.
       // https://stackoverflow.com/a/53206485
       // modified to accept intent:// scheme (android) shmood:// scheme (ios)
-      const withProtocol = url => !/^intent|shmood|https?:\/\//i.test(url) ? `http://${url}` : url;
-
-      // format with protocol to return to http://<srcUrl>/home/#
+      const withProtocol = url => (!/^intent|shmood|https?:\/\//i.test(url) ? `http://${url}` : url);
       srcUrl = withProtocol(srcUrl);
 
       // handle mobile redirect. mobile is absolutely broken af rn.
-      if(srcUrl.startsWith('intent://')) {
-        // srcUrl = `intent://home/#Intent;scheme=shmood;package=com.shmood;`
-        // srcUrl += `S.access_token=${encodeURIComponent(access_token)};`
-        // srcUrl += `S.refresh_token=${encodeURIComponent(refresh_token)};`;
-        // srcUrl += `S.expires_in=${encodeURIComponent(expires_in)};`
-        // srcUrl += `end`;
-
-        srcUrl=`http://shmood-mobile.com/${encodeURIComponent(access_token)}/${encodeURIComponent(refresh_token)}/${encodeURIComponent(expires_in)}`;
-
-        console.log(srcUrl);
+      if (srcUrl.startsWith('intent://')) {
+        console.log('android redirect not implemented!');
         return res.redirect(srcUrl);
-      }else if(srcUrl.startsWith('shmood://')){
-        // will do ios redirect later...
+      } if (srcUrl.startsWith('shmood://')) {
         console.log('ios redirect not implemented!');
-      }else{
+      } else {
         srcUrl = urljoin(srcUrl, 'home', '#');
       }
 
-      /* Redirecting back from whence we came! :-) */
-      res.redirect(`${srcUrl}` +
-      querystring.stringify({
-        access_token: access_token,
-        refresh_token: refresh_token,
-        expires_in: expires_in,
-      }));    
-    }) 
+      res.redirect(`${srcUrl}${
+        querystring.stringify({
+          access_token,
+          refresh_token,
+          expires_in,
+        })}`);
+    })
     .catch((err) => {
       console.log(err);
       res.status(err.code);
@@ -116,31 +94,25 @@ router.get('/callback', function(req, res) {
     });
 });
 
-router.post('/refresh_token', function (req, res) {
-
-  const {accessToken, refreshToken } = req.body;
-  console.log(req.body)
+router.post('/refresh_token', (req, res) => {
+  const { accessToken, refreshToken } = req.body;
   spotify.setAccessToken(accessToken);
   spotify.setRefreshToken(refreshToken);
 
   spotify
     .refreshAccessToken()
-    .then(data => {
+    .then((data) => {
       console.log('token has been refreshed!');
-      console.log(data.body);
-      spotify.setAccessToken(data.body['access_token']);
-
-      // send new token back?
+      spotify.setAccessToken(data.body.access_token);
       res.send(data.body);
     })
-    .catch(err => {
-      console.log('Could not refresh access token',err);
+    .catch((err) => {
+      console.log('Could not refresh access token', err);
       res.status(400).send(err);
-    })
+    });
 });
 
-router.get('/get-credentials', function(req, res) {
-
+router.get('/get-credentials', (req, res) => {
   // TODO: should update to check if this request is being made from a
   //  trusted source (ex: heroku)
   res.json(credentials);
