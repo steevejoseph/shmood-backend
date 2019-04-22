@@ -31,9 +31,11 @@ const upload = multer({ storage });
 
 // routes
 router.post('/upload', upload.single('photo'), (req, res) => {
-  const file = req.file.path;
+  // remove base64 data header from image binary
+  const file = req.body.photo.replace(/data:image\/[^;]+;base64,/, '');
+
   imgur
-    .uploadFile(file)
+    .uploadBase64(file)
     .then((json) => {
       const { deletehash, link } = json.data;
       res.json({
