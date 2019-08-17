@@ -38,13 +38,13 @@ let srcUrl;
 const spotify = new SpotifyWebApi(credentials);
 
 /**
- *
- * @param {String} unformattedUrl
- * @returns {String} String representing the URL that the frontend,
- *  currently web-only, will redirect to.
- *  Either will be "srcUrl/home" or ""
+ * Generates the URL the frontend will be redirected to
+ * @param {String} unformattedUrl The URL that originally made the request
+ * @param {Object} options A config option containing info
+ *  such as whether the user is a new user or not.
+ * @returns {String} The URL the frontend will redirect to.
  */
-const generateFrontendURL = (unformattedUrl) => {
+const generateFrontendURL = (unformattedUrl, options) => {
   // nifty little lambda that adds protocol if protocol not given.
   // https://stackoverflow.com/a/53206485
   // modified to accept intent:// scheme (android) shmood:// scheme (ios)
@@ -56,8 +56,10 @@ const generateFrontendURL = (unformattedUrl) => {
     console.log('android redirect not implemented!');
   } else if (srcUrl.startsWith('shmood://')) {
     console.log('ios redirect not implemented!');
-  } else {
+  } else if (options.userExisted) {
     srcUrl = urljoin(srcUrl, 'home', '#');
+  } else {
+    srcUrl = urljoin(srcUrl, 'newUser', '#');
   }
 
   return srcUrl;
@@ -72,38 +74,37 @@ router.get('/login', (req, res) => {
 });
 
 /* Handle authorization callback from Spotify */
-router.get('/callback', (req, res) => {
+router.get('/callback', async (req, res) => {
   const { code } = req.query;
   // const { state } = req.query;
 
   /* Get the access token! */
-  spotify
-    .authorizationCodeGrant(code)
-    .then((data) => {
-      const { expires_in, access_token, refresh_token } = data.body;
+  try {
+    const data = await spotify.authorizationCodeGrant(code);
+    const { expires_in, access_token, refresh_token } = data.body;
+    spotify.setAccessToken(access_token);
 
-      spotify.setAccessToken(access_token);
-      spotify
-        .getMe()
-        .then((me) => {
-          userMiddleware.addUserToDb(me);
-        });
+    const me = await spotify.getMe();
+    const userExisted = await userMiddleware.addUserToDb(me);
 
-      srcUrl = generateFrontendURL(srcUrl);
+    const options = {
+      userExisted,
+    };
 
-      res.redirect(
-        `${srcUrl}${querystring.stringify({
-          access_token,
-          refresh_token,
-          expires_in,
-        })}`,
-      );
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(err.code);
-      res.send(err.message);
-    });
+    srcUrl = generateFrontendURL(srcUrl, options);
+
+    res.redirect(
+      `${srcUrl}${querystring.stringify({
+        access_token,
+        refresh_token,
+        expires_in,
+      })}`,
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(err.code);
+    res.send(err.message);
+  }
 });
 
 router.post('/refresh_token', (req, res) => {
