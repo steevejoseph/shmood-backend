@@ -37,6 +37,26 @@ const scopes = [
 let srcUrl;
 const spotify = new SpotifyWebApi(credentials);
 
+const generateFrontendURL = (unformattedUrl) => {
+  // nifty little lambda that adds protocol if protocol not given.
+  // https://stackoverflow.com/a/53206485
+  // modified to accept intent:// scheme (android) shmood:// scheme (ios)
+  const withProtocol = url => (!/^intent|shmood|https?:\/\//i.test(url) ? `http://${url}` : url);
+  srcUrl = withProtocol(unformattedUrl);
+
+  // handle mobile redirect. mobile is absolutely broken af rn.
+  if (srcUrl.startsWith('intent://')) {
+    console.log('android redirect not implemented!');
+  }
+  if (srcUrl.startsWith('shmood://')) {
+    console.log('ios redirect not implemented!');
+  } else {
+    srcUrl = urljoin(srcUrl, 'home', '#');
+  }
+
+  return srcUrl;
+};
+
 router.get('/login', (req, res) => {
   // eslint-disable-next-line prefer-destructuring
   srcUrl = req.query.srcUrl;
@@ -63,29 +83,15 @@ router.get('/callback', (req, res) => {
           userMiddleware.addUserToDb(me);
         });
 
+      srcUrl = generateFrontendURL(srcUrl);
 
-      // nifty little lambda that adds protocol if protocol not given.
-      // https://stackoverflow.com/a/53206485
-      // modified to accept intent:// scheme (android) shmood:// scheme (ios)
-      const withProtocol = url => (!/^intent|shmood|https?:\/\//i.test(url) ? `http://${url}` : url);
-      srcUrl = withProtocol(srcUrl);
-
-      // handle mobile redirect. mobile is absolutely broken af rn.
-      if (srcUrl.startsWith('intent://')) {
-        console.log('android redirect not implemented!');
-        return res.redirect(srcUrl);
-      } if (srcUrl.startsWith('shmood://')) {
-        console.log('ios redirect not implemented!');
-      } else {
-        srcUrl = urljoin(srcUrl, 'home', '#');
-      }
-
-      res.redirect(`${srcUrl}${
-        querystring.stringify({
+      res.redirect(
+        `${srcUrl}${querystring.stringify({
           access_token,
           refresh_token,
           expires_in,
-        })}`);
+        })}`,
+      );
     })
     .catch((err) => {
       console.log(err);
