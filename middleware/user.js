@@ -47,8 +47,14 @@ const sendIntroEmail = async (email) => {
   });
 };
 
-exports.addUserToDb = async (res) => {
-  const { display_name, email, id } = res.body;
+/**
+ * Adds a Spotify user to the DB if not already present, or updates the user info if the user exists.
+ * @param {Object} spotifyUser An object representing the Spotify user
+ * @
+ * @returns {boolean} Returns whether the user was already in the DB.
+ */
+exports.addUserToDb = async (spotifyUser) => {
+  const { display_name, email, id } = spotifyUser.body;
   const user = await User.findOne({ spotifyId: id });
   // console.log(user);
   if (user) {
@@ -56,18 +62,20 @@ exports.addUserToDb = async (res) => {
     user.loggedIn = true;
     user.lastLogin = Date.now();
     await user.save();
-  } else {
-    const newUser = await new User({
-      name: display_name,
-      email,
-      spotifyId: id,
-      loggedIn: true,
-      lastLogin: Date.now(),
-    });
-
-    sendIntroEmail(newUser.email);
-    await newUser.save();
+    return true;
   }
+
+  const newUser = await new User({
+    name: display_name,
+    email,
+    spotifyId: id,
+    loggedIn: true,
+    lastLogin: Date.now(),
+  });
+
+  sendIntroEmail(newUser.email);
+  await newUser.save();
+  return false;
 };
 
 exports.augmentUserPlaylistPhotos = async (spotifyId, photo) => {
