@@ -37,6 +37,13 @@ const scopes = [
 let srcUrl;
 const spotify = new SpotifyWebApi(credentials);
 
+/**
+ *
+ * @param {String} unformattedUrl
+ * @returns {String} String representing the URL that the frontend,
+ *  currently web-only, will redirect to.
+ *  Either will be "srcUrl/home" or ""
+ */
 const generateFrontendURL = (unformattedUrl) => {
   // nifty little lambda that adds protocol if protocol not given.
   // https://stackoverflow.com/a/53206485
@@ -47,8 +54,7 @@ const generateFrontendURL = (unformattedUrl) => {
   // handle mobile redirect. mobile is absolutely broken af rn.
   if (srcUrl.startsWith('intent://')) {
     console.log('android redirect not implemented!');
-  }
-  if (srcUrl.startsWith('shmood://')) {
+  } else if (srcUrl.startsWith('shmood://')) {
     console.log('ios redirect not implemented!');
   } else {
     srcUrl = urljoin(srcUrl, 'home', '#');
