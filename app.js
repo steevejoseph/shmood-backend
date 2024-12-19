@@ -15,7 +15,7 @@ app.use(cors());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
+// mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
 
 app.use(logger('dev'));
 app.use(express.json({ limit: '10mb' }));
@@ -24,7 +24,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // API Routes
-app.use('/', require('./routes/index'));
+// app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/spotify/auth', require('./routes/spotify/auth'));
 app.use('/azure', require('./routes/azure/index'));

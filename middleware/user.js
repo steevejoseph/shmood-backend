@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 
-mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
+// mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
 
 const User = require('../models/user');
 

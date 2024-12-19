@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 const User = require('../models/user');
 
-mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
+// mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
 
 /* GET users listing. */
 router.get('/', (req, res) => {

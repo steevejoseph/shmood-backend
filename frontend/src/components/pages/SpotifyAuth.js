@@ -47,11 +47,20 @@ export default class SpotifyAuth extends Component {
     return (
       <div>
         <div style={styles.content}>
-          <a href={this.loginUrl}>
-            <button onClick={() => this.setState({ loggingIn: true })} style={styles.button} type="button">
-              join the fun
-            </button>
-          </a>
+          {/* <a href={this.loginUrl}> */}
+          <button
+            onClick={() => {
+              this.setState({ loggingIn: true });
+              setTimeout(() => {
+                this.setState({ loggingIn: false });
+              }, 2000);
+            }}
+            style={styles.button}
+            type="button"
+          >
+            join the fun
+          </button>
+          {/* </a> */}
         </div>
       </div>
     );
