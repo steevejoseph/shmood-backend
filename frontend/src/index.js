@@ -8,8 +8,6 @@ import { createMiddleware } from 'redux-beacon';
 import Segment, { trackPageView } from '@redux-beacon/segment';
 import { routerMiddleware, LOCATION_CHANGE } from 'connected-react-router';
 
-import {} from 'dotenv/config';
-
 import creatRootReducer from './reducers';
 
 import 'bootstrap/dist/css/bootstrap.min.css';

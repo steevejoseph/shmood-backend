@@ -58,7 +58,6 @@ class CurrentLocation extends Component {
       const mapRef = this.refs.map;
 
       // reference to the actual DOM element
-      // eslint-disable-next-line react/no-find-dom-node
       const node = ReactDOM.findDOMNode(mapRef);
 
       const { zoom } = this.props;

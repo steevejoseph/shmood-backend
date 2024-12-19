@@ -22,7 +22,6 @@ const styles = {
 class TopNav extends Component {
   render() {
     const { topNav, navLink } = styles;
-    // eslint-disable-next-line no-shadow
     const { selectedScreen, selectPlaylistCategory } = this.props;
 
     switch (window.location.pathname) {

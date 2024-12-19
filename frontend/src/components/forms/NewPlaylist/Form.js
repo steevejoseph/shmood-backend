@@ -1,21 +1,35 @@
-/* eslint-disable jsx-a11y/label-has-for */
-/* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import React, { Component } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 
-import { Field, reduxForm } from 'redux-form';
-import { connect } from 'react-redux';
-import Spinner from 'react-spinkit';
-import Dropzone from './Dropzone';
-import { getImgurUrl } from '../../../actions';
+import { Field, reduxForm } from "redux-form";
+import { connect } from "react-redux";
+import Spinner from "react-spinkit";
+import Dropzone from "./Dropzone";
+import { getImgurUrl } from "../../../actions";
 
 const styles = {
   form: {
     marginTop: 50,
-    flexDirection: 'column',
-    color: '#fff',
+    flexDirection: "column",
+    color: "#fff",
   },
 };
+
+function WithRouterWrapper(Component) {
+  return function WrappedComponent(props) {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const params = useParams();
+    return (
+      <Component
+        {...props}
+        navigate={navigate}
+        location={location}
+        params={params}
+      />
+    );
+  };
+}
 
 class PlaylistNew extends Component {
   constructor(props) {
@@ -33,13 +47,13 @@ class PlaylistNew extends Component {
     const {
       meta: { touched, error },
     } = field;
-    const className = `${touched && error ? 'has-danger' : ''}`;
+    const className = `${touched && error ? "has-danger" : ""}`;
 
     return (
       <div className={className} style={{ marginTop: 20, marginBottom: 20 }}>
         <label>{field.label}</label>
         <input className="form-control" type="text" {...field.input} />
-        <div className="text-help">{touched ? error : ''}</div>
+        <div className="text-help">{touched ? error : ""}</div>
       </div>
     );
   }
@@ -55,9 +69,17 @@ class PlaylistNew extends Component {
     return (
       <div className="container" style={form}>
         <form onSubmit={handleSubmit(this.onSubmit)}>
-          <Field label="Playlist Name" name="name" component={this.renderField} />
+          <Field
+            label="Playlist Name"
+            name="name"
+            component={this.renderField}
+          />
           <Field label="Image" name="image" component={Dropzone} />
-          <button type="submit" className="btn btn-primary" style={{ margin: 20 }}>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ margin: 20 }}
+          >
             Submit
           </button>
         </form>
@@ -68,23 +90,17 @@ class PlaylistNew extends Component {
 
 function validate(values) {
   const errors = {};
-  if (!values.name) errors.name = 'Playlist must have a name';
-  if (!values.image) errors.image = 'Playlist must have an image';
+  if (!values.name) errors.name = "Playlist must have a name";
+  if (!values.image) errors.image = "Playlist must have an image";
   return errors;
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   photoBeingSubmitted: state.photo.photoBeingSubmitted,
 });
 
-export default withRouter(
-  reduxForm({
-    validate,
-    form: 'playlistNewForm',
-  })(
-    connect(
-      mapStateToProps,
-      { getImgurUrl }
-    )(PlaylistNew)
-  )
+const mapDispatchToProps = { getImgurUrl };
+
+export default WithRouterWrapper(
+  connect(mapStateToProps, mapDispatchToProps)(PlaylistNew)
 );

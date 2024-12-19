@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Nav, Button } from 'reactstrap';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { selectScreen } from '../../actions';
 
 const styles = {
@@ -21,26 +21,47 @@ const styles = {
   },
 };
 
-class SideNav extends Component {
-  render() {
-    const { sideNav, navLink, sideNavDiv } = styles;
-    const { history } = this.props;
+function WithRouterWrapper(Component) {
+  return function WrappedComponent(props) {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const params = useParams();
     return (
-      <div style={sideNavDiv}>
-        <Nav vertical pills style={sideNav}>
-          <Button color="link" onClick={() => history.push('/home')} style={navLink}>
-            Home
-          </Button>
-          <Button color="link" onClick={() => history.push('/playlist/new')} style={navLink}>
-            New Shmood
-          </Button>
-          <Button color="link" onClick={() => history.push('/listening-with-you')} style={navLink}>
-            Listening With You
-          </Button>
-        </Nav>
-      </div>
+      <Component
+        {...props}
+        navigate={navigate}
+        location={location}
+        params={params}
+      />
     );
-  }
+  };
+}
+
+function SideNav({ navigate, location, params }) {
+  const { sideNav, navLink, sideNavDiv } = styles;
+  return (
+    <div style={sideNavDiv}>
+      <Nav vertical pills style={sideNav}>
+        <Button color="link" onClick={() => navigate("/home")} style={navLink}>
+          Home
+        </Button>
+        <Button
+          color="link"
+          onClick={() => navigate("/playlist/new")}
+          style={navLink}
+        >
+          New Shmood
+        </Button>
+        <Button
+          color="link"
+          onClick={() => navigate("/listening-with-you")}
+          style={navLink}
+        >
+          Listening With You
+        </Button>
+      </Nav>
+    </div>
+  );
 }
 
 const mapStateToProps = state => ({
@@ -51,9 +72,6 @@ const mapDispatchToProps = {
   selectScreen,
 };
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(SideNav)
+export default WithRouterWrapper(
+  connect(mapStateToProps, mapDispatchToProps)(SideNav)
 );

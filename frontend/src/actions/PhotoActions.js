@@ -1,5 +1,4 @@
-/* eslint-disable import/prefer-default-export */
-import axios from 'axios';
+import axios from "axios";
 
 import {
   IMGUR_PHOTO_ADD_PENDING,
@@ -8,25 +7,25 @@ import {
   SUBMIT_PHOTO_URL,
   SUBMIT_PHOTO_URL_SUCCESS,
   SUBMIT_PHOTO_URL_FAIL,
-} from './types';
+} from "./types";
 
-import { history } from '../components/App';
-import { createPlaylist } from './PlaylistActions';
+import { history } from "../components/App";
+import { createPlaylist } from "./PlaylistActions";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-export const getImgurUrl = values => dispatch => {
+export const getImgurUrl = (values) => (dispatch) => {
   dispatch({ type: IMGUR_PHOTO_ADD_PENDING });
   const reader = new FileReader();
   reader.readAsDataURL(values.image[0]);
 
-  reader.onabort = () => console.log('file reading was aborted');
-  reader.onerror = () => console.log('file reading has failed');
+  reader.onabort = () => console.log("file reading was aborted");
+  reader.onerror = () => console.log("file reading has failed");
   reader.onload = () => {
     // Do whatever you want with the file contents
     axios
       .post(`${API_URL}/imgur/upload`, { photo: reader.result })
-      .then(res => {
+      .then((res) => {
         dispatch({
           type: IMGUR_PHOTO_ADD_SUCCESS,
           payload: res.data,
@@ -36,16 +35,16 @@ export const getImgurUrl = values => dispatch => {
         const imageDeleteHash = res.data.deletehash;
         dispatch(submitPhotoUrl({ imageUrl, imageDeleteHash, ...values }));
       })
-      .catch(err => {
-        console.log('Could not upload to Imgur', err);
+      .catch((err) => {
+        console.log("Could not upload to Imgur", err);
         dispatch({ type: IMGUR_PHOTO_ADD_FAIL });
-        alert('Cannot upload image to Imgur, redirecting you to home page!');
-        history.push('/home');
+        alert("Cannot upload image to Imgur, redirecting you to home page!");
+        history.push("/home");
       });
   };
 };
 
-export const submitPhotoUrl = values => dispatch => {
+export const submitPhotoUrl = (values) => (dispatch) => {
   dispatch({
     type: SUBMIT_PHOTO_URL,
   });
@@ -56,7 +55,7 @@ export const submitPhotoUrl = values => dispatch => {
   //  @response: ALERT! 😎
   axios
     .post(`${API_URL}/azure/submit`, { imageUrl })
-    .then(res => {
+    .then((res) => {
       dispatch({
         type: SUBMIT_PHOTO_URL_SUCCESS,
         payload: res.data,
@@ -67,10 +66,10 @@ export const submitPhotoUrl = values => dispatch => {
       values.degree = res.data.degree;
       dispatch(createPlaylist(values));
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       dispatch({ type: SUBMIT_PHOTO_URL_FAIL });
-      alert('No faces detected in your image, redirecting you to home page!');
-      history.push('/home');
+      alert("No faces detected in your image, redirecting you to home page!");
+      history.push("/home");
     });
 };

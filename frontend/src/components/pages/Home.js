@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import Spotify from 'spotify-web-api-js';
-import { withRouter } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import axios from 'axios';
 
 import { getUserData, checkInitialLogin, refreshTokensIfExpired } from '../../assets/scripts/spotify/auth';
@@ -20,6 +20,22 @@ const styles = {
   },
 };
 
+function WithRouterWrapper(Component) {
+  return function WrappedComponent(props) {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const params = useParams();
+    return (
+      <Component
+        {...props}
+        navigate={navigate}
+        location={location}
+        params={params}
+      />
+    );
+  };
+}
+
 class Home extends Component {
   constructor(props) {
     super(props);
@@ -31,7 +47,7 @@ class Home extends Component {
     if (accessToken) {
       spotify.setAccessToken(accessToken);
       // console.log(`Bearer ${accessToken}`);
-      this.props.history.push('/home');
+      this.props.navigate.push("/home");
     }
 
     this.handleAuthRefresh = this.handleAuthRefresh.bind(this);
@@ -58,7 +74,7 @@ class Home extends Component {
     const spotifyTokenExpirationTime = getUserData('spotifyTokenExpirationTime');
 
     if (!spotifyTokenExpirationTime) {
-      this.props.history.push('/');
+      this.props.navigate.push("/");
     }
 
     refreshTokensIfExpired();
@@ -115,9 +131,6 @@ const mapStateToProps = state => ({
   selectedScreen: state.screen.selectedScreen,
 });
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    { selectScreen }
-  )(Home)
+export default WithRouterWrapper(
+  connect(mapStateToProps, { selectScreen })(Home)
 );
