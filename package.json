@@ -3,10 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build:frontend": "cd ./frontend && pnpm install && pnpm run build",
+    "start": "pnpm run build:frontend && node ./bin/www",
+    "dev": "node ./bin/www"
   },
   "dependencies": {
     "base64-img": "^1.0.4",
