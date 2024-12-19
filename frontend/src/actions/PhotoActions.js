@@ -9,7 +9,7 @@ import {
   SUBMIT_PHOTO_URL_FAIL,
 } from "./types";
 
-import { history } from "../components/App";
+import { history } from "../history";
 import { createPlaylist } from "./PlaylistActions";
 
 const API_URL = process.env.REACT_APP_API_URL;

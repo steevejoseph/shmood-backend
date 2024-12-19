@@ -6,7 +6,8 @@ import {
   seeds,
 } from "../assets/scripts/spotify";
 
-import { history } from "../components/App";
+import { useNavigate } from "react-router-dom";
+
 import {
   PLAYLIST_GENERATION_STARTED,
   PLAYLIST_GENERATION_SUCCESS,
@@ -38,12 +39,12 @@ export const createPlaylist = (values) => async (dispatch) => {
     });
     dispatch(addPhotoToPlaylist(newPlaylist.id, imageBinary));
     dispatch(fillPlaylist(newPlaylist.id, values));
-    history.push(`/playlist/${newPlaylist.id}`);
+    navigate(`/playlist/${newPlaylist.id}`);
   } catch (err) {
     console.log(err);
     dispatch({ type: PLAYLIST_GENERATION_FAIL });
     alert("Error creating playlist, redirecting you to home page!");
-    history.push("/home");
+    navigate("/home");
   }
 };
 
@@ -57,7 +58,7 @@ export const addPhotoToPlaylist = (playlistId, imageData) => async (dispatch) =>
     console.log("Cannot add photo to playlist", err);
     dispatch({ type: PLAYLIST_PHOTO_ADD_FAIL });
     alert("Error adding photo to playlist, redirecting you to home page!");
-    history.push("/home");
+    navigate("/home");
   }
 };
 
@@ -77,6 +78,15 @@ export const fillPlaylist = (playlistId, values) => async (dispatch) => {
     console.log("Cannot get recommendations", err);
     dispatch({ type: PLAYLIST_GENERATION_FAIL });
     alert("Error filling playlist, redirecting you to home page!");
-    history.push("/home");
+    navigate("/home");
+  }
+};
+
+export const someAction = (navigate) => async (dispatch) => {
+  try {
+    // Your action logic
+    navigate("/some-path");
+  } catch (error) {
+    console.error(error);
   }
 };

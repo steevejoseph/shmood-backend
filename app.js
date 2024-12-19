@@ -23,11 +23,20 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// API Routes
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/spotify/auth', require('./routes/spotify/auth'));
 app.use('/azure', require('./routes/azure/index'));
 app.use('/imgur', require('./routes/imgur/index'));
+
+// Serve static files from React build
+app.use(express.static(path.join(__dirname, 'frontend/build')));
+
+// Wildcard route for React app - moved before 404 handler but after API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
+});
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
